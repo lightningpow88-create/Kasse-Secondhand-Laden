@@ -460,6 +460,8 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(26px,4vw,34px);l
 nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;border-bottom:2px solid var(--line);margin-bottom:20px}
 nav.tabs::-webkit-scrollbar{display:none}
 .tab{flex:0 0 auto;font:700 15px var(--f-body);color:var(--muted);background:none;border:0;padding:12px 16px;border-radius:10px 10px 0 0;cursor:pointer;margin-bottom:-2px;border-bottom:2px solid transparent}
+.tab.note::after{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--tag);box-shadow:0 0 0 2px var(--surface);margin-left:6px;vertical-align:2px}
+.notice{background:var(--warn-bg);color:var(--warn);border-radius:12px;padding:14px 16px;font-weight:700;margin-bottom:16px}
 .tab[aria-selected="true"]{color:var(--ink);background:var(--surface);border:2px solid var(--line);border-bottom-color:var(--surface)}
 .tab:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.row:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 h2{font-family:var(--f-display);font-weight:800;font-size:22px;margin:0 0 4px}
@@ -931,7 +933,7 @@ async function storno(b){const byP={};for(const i of b.items){const x=findItem(i
   try{for(const nr of Object.keys(byP))await write(()=>db.doc("personen/"+nr).update({items:byP[nr]}));await write(()=>db.doc("belege/"+b.id).update({storniert:true}));toast("Quittung storniert.")}catch(e){}}
 
 /* ---------- Einstellungen ---------- */
-function vSettings(v){v.innerHTML=`<div class="grid2"><section class="panel"><h2>Einstellungen</h2>
+function vSettings(v){v.innerHTML=`<div id="st-notice"></div><div class="grid2"><section class="panel"><h2>Einstellungen</h2>
   <form id="st-form" class="stack"><label class="f" for="st-name">Name des Ladens<input id="st-name" value="${h(S.settings.name)}"></label>
   <label class="f" for="st-sub">Zweite Zeile auf Quittungen<input id="st-sub" value="${h(S.settings.sub)}"></label>
   <div class="btns"><button class="b pri">Speichern</button></div></form></section>
@@ -946,7 +948,7 @@ function vSettings(v){v.innerHTML=`<div class="grid2"><section class="panel"><h2
   $("#st-form").addEventListener("submit",async e=>{e.preventDefault();const s={name:$("#st-name").value.trim()||"Secondhand-Laden",sub:$("#st-sub").value.trim()};
     try{await write(()=>db.doc("einstellungen/laden").set(s));toast("Gespeichert.")}catch(e){}});
   $("#st-csv").onclick=exportCsv;
-  $("#st-bak").onclick=backup;stLast();ghPanel();
+  $("#st-bak").onclick=backup;stLast();ghPanel();renderNotice();
   $("#st-file").addEventListener("change",e=>{const f=e.target.files[0];e.target.value="";if(!f)return;const r=new FileReader();
     r.onload=()=>{let d;try{d=JSON.parse(r.result)}catch(x){toast("Diese Datei ist keine Sicherung der Kasse.");return}
       if(!d||d.app!=="secondhand-kasse"||!d.data){toast("Diese Datei ist keine Sicherung der Kasse.");return}
@@ -963,9 +965,15 @@ async function backup(){const d=new Date(),name=`Secondhand_Sicherung_${d.toISOS
   try{const file=new File([json],name,{type:"application/json"});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});done();return}}
   catch(e){if(e&&e.name==="AbortError")return}
   saveFile(name,json);done()}
-function checkBackup(){if(GH.conflict)return;const eb=expBanner();if(eb){showBanner(eb);return}if(!S.personen.size){showBanner("");return}
-  const gl=lsGet("shk-gh-last");if(ghCfg()&&gl&&(Date.now()-new Date(gl))/864e5<7){showBanner("");return}const l=lsGet("shk-lastbackup");const days=l?(Date.now()-new Date(l))/864e5:Infinity;
-  showBanner(days>7?(l?`Die letzte Sicherung ist ${Math.floor(days)} Tage alt. Bitte unter Einstellungen eine neue speichern.`:"Noch keine Sicherung gespeichert. Bitte unter Einstellungen eine Sicherung speichern."):"")}
+function setNotice(m){S.notice=m;const t=document.querySelector('.tab[data-view="einstellungen"]');if(t)t.classList.toggle("note",!!m);renderNotice()}
+function renderNotice(){const el=$("#st-notice");if(el)el.innerHTML=S.notice?`<div class="notice">${h(S.notice)}</div>`:""}
+function checkBackup(){let m="";
+  if(GH.conflict)m="Bei GitHub liegt ein anderer Stand als auf diesem Gerät. Bitte unten bei GitHub auswählen, welcher gilt.";
+  else if(expBanner())m=expBanner();
+  else if(S.personen.size){const gl=lsGet("shk-gh-last");const ghOk=ghCfg()&&gl&&(Date.now()-new Date(gl))/864e5<7;
+    if(!ghOk){const l=lsGet("shk-lastbackup");const days=l?(Date.now()-new Date(l))/864e5:Infinity;
+      if(days>7)m=l?`Die letzte Sicherung ist ${Math.floor(days)} Tage alt. Bitte unten GitHub verbinden oder eine Sicherungsdatei erstellen.`:"Es gibt noch keine Sicherung. Bitte unten GitHub verbinden oder eine Sicherungsdatei erstellen."}}
+  setNotice(m)}
 
 /* ---------- Dateien ---------- */
 function saveFile(filename,data){try{const type=filename.endsWith(".pdf")?"application/pdf":filename.endsWith(".csv")?"text/csv;charset=utf-8":"application/json";
@@ -1013,9 +1021,9 @@ function pdfAbrechnung(p){const J=pdfLib();if(!J)return;const s=stats(p),it=item
 /* ---------- Start ---------- */
 function setSync(on,txt){S.localOk=on;S.localTxt=txt;renderSync()}
 function renderSync(){const dot=$("#syncDot"),t=$("#syncTxt");dot.className="dot";
-  if(ghCfg()){const gl=lsGet("shk-gh-last");const m={ok:["on","Bei GitHub gesichert"+(gl?", "+new Date(gl).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})+" Uhr":"")],
-      pending:["warn","Wird bei GitHub gesichert …"],check:["warn","Verbinde mit GitHub …"],offline:["warn","Offline, Sicherung wird nachgeholt"],err:["warn","GitHub antwortet nicht, neuer Versuch folgt"],
-      auth:["bad","GitHub-Zugang prüfen (Einstellungen)"],conflict:["bad","Anderer Stand bei GitHub (Einstellungen)"]}[GH.state]||["warn","GitHub"];
+  if(ghCfg()){const gl=lsGet("shk-gh-last");const m={ok:["on","Gesichert"+(gl?", "+new Date(gl).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})+" Uhr":"")],
+      pending:["warn","Speichert …"],check:["warn","Verbinde …"],offline:["warn","Offline, wird nachgeholt"],err:["warn","Neuer Versuch folgt"],
+      auth:["bad","Bitte Einstellungen prüfen"],conflict:["bad","Bitte Einstellungen prüfen"]}[GH.state]||["warn","Speichert …"];
     dot.classList.add(m[0]);t.textContent=m[1]}
   else{if(S.localOk)dot.classList.add("on");t.textContent=S.localTxt||""}
   const st=$("#gh-state");if(st)st.textContent=t.textContent}
@@ -1046,8 +1054,8 @@ async function ghPush(){const c=ghCfg();if(!c||GH.blocked)return;if(GH.busy){GH.
   catch(e){GH.pending=true;ghSet("offline")}
   finally{GH.busy=false;if(GH.pending&&!GH.blocked&&GH.state!=="auth"){clearTimeout(GH.timer);GH.timer=setTimeout(ghPush,GH.state==="pending"||GH.state==="ok"?1500:30000)}}}
 function ghConflict(rd){GH.blocked=true;GH.conflict=rd;clearTimeout(GH.timer);ghSet("conflict");
-  showBanner("Bei GitHub liegt ein anderer Stand als auf diesem Gerät. Bitte unter Einstellungen auswählen, welcher gilt.");ghPanel()}
-async function ghResolve(keepLocal){const rd=GH.conflict;if(!rd)return;GH.conflict=null;GH.blocked=false;lsSet("shk-gh-sha",rd.sha);showBanner("");
+  checkBackup();ghPanel()}
+async function ghResolve(keepLocal){const rd=GH.conflict;if(!rd)return;GH.conflict=null;GH.blocked=false;lsSet("shk-gh-sha",rd.sha);
   if(keepLocal){lsSet("shk-gh-dirty","1");await ghPush()}
   else{GH.mute=true;try{db.importAll(rd.payload.data);lsSet("shk-gh-dirty","0");ghSet("ok");toast("Stand von GitHub übernommen.")}catch(e){toast("Zu wenig Speicher auf diesem Gerät.")}GH.mute=false}
   checkBackup();ghPanel()}
@@ -1084,7 +1092,7 @@ function ghPanel(){const box=$("#gh-box");if(!box)return;const c=ghCfg();
   renderSync();
   $("#gh-save").onclick=ghSaveKey;
   $("#gh-now").onclick=async()=>{lsSet("shk-gh-dirty","1");if(GH.blocked){toast("Bitte zuerst oben auswählen, welcher Stand gilt.");return}await ghPush();if(GH.state==="ok")toast("Bei GitHub gesichert.")};
-  $("#gh-off").onclick=e=>arm(e.currentTarget,()=>{try{localStorage.removeItem("shk-gh");localStorage.removeItem("shk-gh-sha")}catch(x){}Object.assign(GH,{state:"",blocked:false,conflict:null,pending:false});clearTimeout(GH.timer);showBanner("");renderSync();checkBackup();ghPanel()});
+  $("#gh-off").onclick=e=>arm(e.currentTarget,()=>{try{localStorage.removeItem("shk-gh");localStorage.removeItem("shk-gh-sha")}catch(x){}Object.assign(GH,{state:"",blocked:false,conflict:null,pending:false});clearTimeout(GH.timer);renderSync();checkBackup();ghPanel()});
   if(rd){$("#gh-take").onclick=e=>arm(e.currentTarget,()=>ghResolve(false));$("#gh-keep").onclick=e=>arm(e.currentTarget,()=>ghResolve(true))}}
 function daysLeft(d){if(!d)return null;const t=new Date(d+"T23:59:59");return Math.ceil((t-Date.now())/864e5)}
 function expInfo(c){const n=daysLeft(c.expires);if(n===null)return "Kein Ablaufdatum eingetragen. Trag es ein, dann erinnert dich die Kasse rechtzeitig.";
@@ -1092,8 +1100,8 @@ function expInfo(c){const n=daysLeft(c.expires);if(n===null)return "Kein Ablaufd
   return n<0?`Abgelaufen am ${d}. Bitte bei GitHub einen neuen Schlüssel erstellen und unten eintragen.`:`Gültig bis ${d}, noch ${n} ${n===1?"Tag":"Tage"}.`}
 function expBanner(){const c=ghCfg();if(!c||!c.expires)return "";const n=daysLeft(c.expires);if(n>14)return "";
   const d=new Date(c.expires+"T12:00:00").toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
-  return n<0?`Der GitHub-Schlüssel ist am ${d} abgelaufen. Die Kasse speichert nur noch auf diesem Gerät. Bitte unter Einstellungen einen neuen eintragen.`
-    :`Der GitHub-Schlüssel läuft am ${d} ab, in ${n} ${n===1?"Tag":"Tagen"}. Bitte bei GitHub einen neuen erstellen und unter Einstellungen eintragen.`}
+  return n<0?`Der GitHub-Schlüssel ist am ${d} abgelaufen. Die Kasse speichert nur noch auf diesem Gerät. Bitte unten einen neuen eintragen.`
+    :`Der GitHub-Schlüssel läuft am ${d} ab, in ${n} ${n===1?"Tag":"Tagen"}. Bitte bei GitHub einen neuen erstellen und unten eintragen.`}
 async function ghSaveKey(){const c=ghCfg();if(!c)return;const msg=$("#gh-msg2"),nt=$("#gh-new").value.trim(),ex=$("#gh-exp2").value;
   if(nt){const t={...c,token:nt};msg.textContent="Prüfe …";
     try{const r=await ghFetch(t,"");if(!r.ok){msg.textContent=r.status===401?"Der neue Schlüssel stimmt nicht.":"Mit dem neuen Schlüssel ist das Repository nicht erreichbar. Prüfe, ob er Zugriff auf "+c.repo+" hat.";return}
@@ -1140,7 +1148,7 @@ go("kasse");
   if(!ok){setSync(false,"Speichern nicht möglich");showBanner("Dieser Browser erlaubt kein Speichern. Bitte den privaten Modus in Safari ausschalten.");S.loadedP=true;refresh();return}
   try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
   db=makeLocalDb(()=>{if(GH.mute)return;lsSet("shk-gh-dirty","1");ghSchedule()});
-  db.collection("personen").onSnapshot(snap=>{S.personen=new Map(snap.docs.map(d=>[d.id,{...d.data(),nr:+d.id}]));S.loadedP=true;setSync(true,`${S.personen.size} ${S.personen.size===1?"Person":"Personen"} · auf diesem iPad gespeichert`);refresh();checkBackup()});
+  db.collection("personen").onSnapshot(snap=>{S.personen=new Map(snap.docs.map(d=>[d.id,{...d.data(),nr:+d.id}]));S.loadedP=true;setSync(true,"Auf diesem iPad gespeichert");refresh();checkBackup()});
   db.collection("belege").orderBy("zeit","desc").onSnapshot(snap=>{S.belege=snap.docs.map(d=>({...d.data(),id:d.id}));if(S.view==="belege")qRender()});
   db.doc("einstellungen/laden").onSnapshot(d=>{if(d.exists){S.settings={...S.settings,...d.data()};applySettings()}});
   ghStartup();
