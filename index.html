@@ -632,7 +632,10 @@ function handleErr(e){const c=e&&e.code;
 function showBanner(t){const b=$("#banner");b.textContent=t;b.hidden=!t}
 
 /* ---------- Navigation ---------- */
-function go(v){S.view=v;for(const t of document.querySelectorAll(".tab"))t.setAttribute("aria-selected",t.dataset.view===v?"true":"false");renderView()}
+function pinHash(p){const f=str=>{let x=0x811c9dc5;for(let i=0;i<str.length;i++){x^=str.charCodeAt(i);x=Math.imul(x,0x01000193)>>>0}return x.toString(16).padStart(8,"0")};return f("shk-pin:"+p)+f("x"+p+":shk")}
+const DEFAULT_PIN="e7b2d98fa4143583";
+function curPin(){return S.settings.pinHash||DEFAULT_PIN}
+function go(v){if(v!=="einstellungen")S.unlocked=false;S.view=v;for(const t of document.querySelectorAll(".tab"))t.setAttribute("aria-selected",t.dataset.view===v?"true":"false");renderView()}
 $("#tabs").addEventListener("click",e=>{const t=e.target.closest(".tab");if(t)go(t.dataset.view)});
 
 function renderView(){const v=$("#view");
@@ -933,9 +936,15 @@ async function storno(b){const byP={};for(const i of b.items){const x=findItem(i
   try{for(const nr of Object.keys(byP))await write(()=>db.doc("personen/"+nr).update({items:byP[nr]}));await write(()=>db.doc("belege/"+b.id).update({storniert:true}));toast("Quittung storniert.")}catch(e){}}
 
 /* ---------- Einstellungen ---------- */
-function vSettings(v){v.innerHTML=`<div id="st-notice"></div><div class="grid2"><section class="panel"><h2>Einstellungen</h2>
+function vPin(v){v.innerHTML=`<div class="grid2"><section class="panel"><h2>Einstellungen</h2><p class="hint">Bitte die PIN eingeben.</p>
+  <form id="pin-form" class="stack" autocomplete="off"><input id="pin-in" class="big" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" aria-label="PIN" placeholder="••••">
+  <div class="btns"><button class="b pri">Entsperren</button></div><p class="hint" id="pin-msg" style="color:var(--bad)"></p></form></section></div>`;
+  $("#pin-form").addEventListener("submit",e=>{e.preventDefault();if(pinHash($("#pin-in").value.trim())===curPin()){S.unlocked=true;renderView()}else{$("#pin-msg").textContent="Die PIN stimmt nicht.";$("#pin-in").value="";$("#pin-in").focus()}});
+  setTimeout(()=>$("#pin-in")&&$("#pin-in").focus(),50)}
+function vSettings(v){if(!S.unlocked)return vPin(v);v.innerHTML=`<div id="st-notice"></div><div class="grid2"><section class="panel"><h2>Einstellungen</h2>
   <form id="st-form" class="stack"><label class="f" for="st-name">Name des Ladens<input id="st-name" value="${h(S.settings.name)}"></label>
   <label class="f" for="st-sub">Zweite Zeile auf Quittungen<input id="st-sub" value="${h(S.settings.sub)}"></label>
+  <label class="f" for="st-pin">Neue PIN für die Einstellungen<input id="st-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="leer lassen = PIN bleibt"></label>
   <div class="btns"><button class="b pri">Speichern</button></div></form></section>
   <section class="panel"><h3>Daten sichern</h3><p class="hint">Exportiert alle Teile mit Spender oder Verkäufer, Preis, Status und Verkaufsdatum als Tabelle für Excel oder Numbers.</p><div class="btns"><button class="b" id="st-csv">Alles als CSV speichern</button></div>
 </section>
@@ -945,7 +954,8 @@ function vSettings(v){v.innerHTML=`<div id="st-notice"></div><div class="grid2">
   <p class="hint" id="st-last"></p>
   <div class="btns"><button class="b pri" id="st-bak">Sicherung erstellen und teilen</button><label class="b" for="st-file" style="display:inline-flex;align-items:center;cursor:pointer">Sicherung einspielen</label><input type="file" id="st-file" accept=".json,application/json" hidden></div>
   <div id="st-imp"></div></section></div>`;
-  $("#st-form").addEventListener("submit",async e=>{e.preventDefault();const s={name:$("#st-name").value.trim()||"Secondhand-Laden",sub:$("#st-sub").value.trim()};
+  $("#st-form").addEventListener("submit",async e=>{e.preventDefault();const np=$("#st-pin").value.trim();if(np&&!/^\d{4,8}$/.test(np)){toast("Die PIN muss aus 4 bis 8 Ziffern bestehen.");return}
+    const s={...S.settings,name:$("#st-name").value.trim()||"Secondhand-Laden",sub:$("#st-sub").value.trim()};if(np)s.pinHash=pinHash(np);$("#st-pin").value="";
     try{await write(()=>db.doc("einstellungen/laden").set(s));toast("Gespeichert.")}catch(e){}});
   $("#st-csv").onclick=exportCsv;
   $("#st-bak").onclick=backup;stLast();ghPanel();renderNotice();
@@ -1069,6 +1079,7 @@ async function ghStartup(){const c=ghCfg();if(!c)return;ghSet("check");
       if(Object.keys(rd.payload.data.personen||{}).length)toast("Daten von GitHub geladen.");return}
     if(rd.sha===lsGet("shk-gh-sha")){if(lsGet("shk-gh-dirty")==="1")await ghPush();else ghSet("ok");return}
     if(JSON.stringify(rd.payload.data)===JSON.stringify(local)){lsSet("shk-gh-sha",rd.sha);lsSet("shk-gh-dirty","0");ghSet("ok");return}
+    if(lsGet("shk-gh-dirty")!=="1"){lsSet("shk-gh-sha",rd.sha);GH.mute=true;try{db.importAll(rd.payload.data)}finally{GH.mute=false}lsSet("shk-gh-last",new Date().toISOString());ghSet("ok");return}
     ghConflict(rd)}
   catch(e){GH.pending=true;ghSet("offline");clearTimeout(GH.timer);GH.timer=setTimeout(ghPush,30000)}}
 function ghPanel(){const box=$("#gh-box");if(!box)return;const c=ghCfg();
@@ -1121,7 +1132,7 @@ async function ghConnect(){const owner=$("#gh-owner").value.trim(),repo=$("#gh-r
     if(j.permissions&&j.permissions.push===false){fail("Der Schlüssel darf in diesem Repository nichts speichern. Gib ihm das Recht „Contents: Read and write“.");return}
     const hx=(r.headers.get("github-authentication-token-expiration")||"").slice(0,10);
     c.expires=$("#gh-exp").value||(/^\d{4}-\d{2}-\d{2}$/.test(hx)?hx:"");
-    lsSet("shk-gh",JSON.stringify(c));lsSet("shk-gh-sha","");Object.assign(GH,{blocked:false,conflict:null});
+    lsSet("shk-gh",JSON.stringify(c));lsSet("shk-gh-sha","");if(Object.keys(db.exportAll().personen||{}).length)lsSet("shk-gh-dirty","1");Object.assign(GH,{blocked:false,conflict:null});
     ghPanel();await ghStartup();ghPanel();if(GH.state==="ok")toast("Verbunden. Ab jetzt wird automatisch gesichert.")}
   catch(e){fail("Keine Verbindung zu GitHub. Ist das Gerät online?")}}
 function applySettings(){$("#shopName").textContent=S.settings.name;$("#shopSub").textContent=S.settings.sub||"Kasse und Bestandsbuch"}
