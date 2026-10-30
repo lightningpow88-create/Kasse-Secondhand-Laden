@@ -413,7 +413,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 <style>
 /* Layout: Ladentheke. Nachtblauer Kopf, darunter Reiter wie Karteikarten und eine Arbeitsfläche; Teilenummern erscheinen als gelbe Preisschilder. */
 :root{
-  --bg:#f1f2f6; --surface:#ffffff; --sunk:#e8eaf1; --ink:#1b2135; --muted:#5d6478; --line:#d6d9e3;
+  --bg:#ffffff; --surface:#ffffff; --soft:#f5f6f9; --sunk:#eef0f5; --ink:#1b2135; --muted:#5d6478; --line:#dfe2ea;
   --accent:#26355f; --accent-ink:#ffffff; --tag:#f6c945; --tag-ink:#3a2a00;
   --band:#26355f; --band-ink:#ffffff; --band-muted:#c3cae0;
   --ok:#2a58b8; --ok-bg:#e2e9fa; --warn:#9a5b00; --warn-bg:#fcefd2; --off:#6b7080; --off-bg:#e8e9ee; --gift:#b03a6e; --gift-bg:#fbe4ee; --bad:#b3261e; --bad-bg:#fbe1de;
@@ -423,13 +423,13 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   --r:12px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#12141c; --surface:#1b1e29; --sunk:#0d0f15; --ink:#e8eaf2; --muted:#9ba1b5; --line:#2b3040;
+  --bg:#12141c; --surface:#1b1e29; --soft:#171a24; --sunk:#0d0f15; --ink:#e8eaf2; --muted:#9ba1b5; --line:#2b3040;
   --accent:#9db1ff; --accent-ink:#101633; --tag:#ecc040; --tag-ink:#2a1e00;
   --band:#1f2a4d; --band-ink:#ffffff; --band-muted:#aeb7d6;
   --ok:#8eb0ff; --ok-bg:#1d2846; --warn:#f0b65a; --warn-bg:#3a2c10; --off:#a6abb8; --off-bg:#262a35; --gift:#f29ac2; --gift-bg:#3d1f2f; --bad:#ff8a80; --bad-bg:#3e1c1a;
   color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#12141c; --surface:#1b1e29; --sunk:#0d0f15; --ink:#e8eaf2; --muted:#9ba1b5; --line:#2b3040;
+  --bg:#12141c; --surface:#1b1e29; --soft:#171a24; --sunk:#0d0f15; --ink:#e8eaf2; --muted:#9ba1b5; --line:#2b3040;
   --accent:#9db1ff; --accent-ink:#101633; --tag:#ecc040; --tag-ink:#2a1e00;
   --band:#1f2a4d; --band-ink:#ffffff; --band-muted:#aeb7d6;
   --ok:#8eb0ff; --ok-bg:#1d2846; --warn:#f0b65a; --warn-bg:#3a2c10; --off:#a6abb8; --off-bg:#262a35; --gift:#f29ac2; --gift-bg:#3d1f2f; --bad:#ff8a80; --bad-bg:#3e1c1a;
@@ -445,7 +445,25 @@ header.top .brand{display:flex;align-items:center;gap:14px;min-width:0}
 header.top .logo{flex:0 0 auto;width:46px;height:46px;border-radius:12px;background:var(--tag);color:var(--tag-ink);display:grid;place-items:center;font:800 24px var(--f-display);transform:rotate(-8deg)}
 header.top h1{color:var(--band-ink)}
 header.top .sub{color:var(--band-muted)}
-header.top .sync{color:var(--band-muted);position:relative;z-index:1}
+header.top .sync{color:var(--band-muted)}
+header.top .hright{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+.helpbtn{flex:0 0 auto;width:46px;height:46px;border-radius:50%;border:0;background:var(--tag);color:var(--tag-ink);font:800 24px var(--f-display);cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.helpbtn:active{transform:translateY(1px)}
+.help ol{margin:0;padding:0;list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:14px}
+.help li{counter-increment:s;display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:start;font-size:17px;line-height:1.45}
+.help li::before{content:counter(s);width:34px;height:34px;border-radius:50%;background:var(--tag);color:var(--tag-ink);display:grid;place-items:center;font-weight:800}
+.help .tip{background:var(--soft);border-radius:10px;padding:12px 14px;font-size:15px;line-height:1.45}
+.help h3{font-size:20px;margin:0}
+button.b svg{width:20px;height:20px;vertical-align:-4px;margin-right:6px}
+/* Felder, Schritte, Kasse */
+.f small{font-size:13px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+fieldset:disabled{opacity:.4}
+h2.sh{display:flex;align-items:center;gap:10px}
+.stepn{flex:0 0 auto;display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:17px;font-weight:800}
+.step.off .stepn{background:var(--off-bg);color:var(--off)}
+.ci .price{grid-column:2/4;grid-row:2;justify-self:end;font-size:18px}
+button.link{background:none;border:0;padding:4px 0;color:var(--accent);font:700 16px var(--f-body);cursor:pointer;text-decoration:underline;text-underline-offset:3px;align-self:flex-start}
 header.top .dot{background:var(--band-muted)}
 header.top .dot.on{background:#9db8ff}
 header.top .dot.warn{background:var(--tag)}
@@ -457,23 +475,32 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(26px,4vw,34px);l
 .dot.on{background:var(--ok)}
 .dot.warn{background:var(--warn)}
 .dot.bad{background:var(--bad)}
-nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;border-bottom:2px solid var(--line);margin-bottom:20px}
+nav.tabs{display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:14px;margin-bottom:20px;border-bottom:1px solid var(--line)}
 nav.tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;font:700 15px var(--f-body);color:var(--muted);background:none;border:0;padding:12px 16px;border-radius:10px 10px 0 0;cursor:pointer;margin-bottom:-2px;border-bottom:2px solid transparent}
-.tab.note::after{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--tag);box-shadow:0 0 0 2px var(--surface);margin-left:6px;vertical-align:2px}
+.tab{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;font:700 15px var(--f-body);color:var(--muted);background:none;border:1.5px solid transparent;padding:9px 14px;border-radius:999px;cursor:pointer;position:relative;min-height:44px}
+.tab svg{width:20px;height:20px;flex:0 0 auto}
+.tab:hover{color:var(--ink);background:var(--soft)}
+.tab.main{font-size:17px;padding:11px 20px;color:var(--ink);border-color:var(--line)}
+.tab.main svg{width:22px;height:22px}
+.tab[aria-selected="true"],.tab[aria-selected="true"]:hover{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tsep{flex:0 0 1px;align-self:stretch;background:var(--line);margin:6px}
+.hbtn{flex:0 0 auto;width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.13);color:var(--band-ink);display:grid;place-items:center;cursor:pointer;position:relative}
+.hbtn svg{width:24px;height:24px}
+.hbtn:hover{background:rgba(255,255,255,.22)}
+.hbtn[aria-pressed="true"]{background:var(--band-ink);color:var(--band)}
+.hbtn.note::after{content:"";position:absolute;top:1px;right:1px;width:13px;height:13px;border-radius:50%;background:var(--tag);box-shadow:0 0 0 2px var(--band)}
 .notice{background:var(--warn-bg);color:var(--warn);border-radius:12px;padding:14px 16px;font-weight:700;margin-bottom:16px}
-.tab[aria-selected="true"]{color:var(--ink);background:var(--surface);border:2px solid var(--line);border-bottom-color:var(--surface)}
 .tab:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.row:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 h2{font-family:var(--f-display);font-weight:800;font-size:22px;margin:0 0 4px}
 h3{font-family:var(--f-display);font-weight:600;font-size:17px;margin:0 0 10px}
 .hint{color:var(--muted);font-size:14px;margin:0}
 .grid2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:start}
 @media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:0 1px 3px rgba(20,30,60,.05);display:flex;flex-direction:column;gap:14px;min-width:0}
 .stack{display:flex;flex-direction:column;gap:10px;min-width:0}
 .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
 .f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;min-width:0}
-input,select,textarea{font:400 17px var(--f-body);color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;width:100%;min-width:0;text-transform:none;letter-spacing:0}
+input,select,textarea{font:400 17px var(--f-body);color:var(--ink);background:var(--soft);border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;width:100%;min-width:0;text-transform:none;letter-spacing:0}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none}
 input.big{font:700 24px var(--f-mono);padding:14px 14px;letter-spacing:.02em}
 .btns{display:flex;gap:8px;flex-wrap:wrap}
@@ -485,7 +512,7 @@ button.b.danger.armed{background:var(--bad);color:var(--surface)}
 button.b.sm{font-size:14px;padding:8px 12px;min-height:38px}
 button.b:disabled{opacity:.45;cursor:not-allowed}
 button.x{background:none;border:0;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;padding:6px 10px;border-radius:8px}
-.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--soft)}
 .seg input{position:absolute;opacity:0;pointer-events:none;width:1px}
 .seg label{padding:10px 14px;font-weight:700;font-size:15px;cursor:pointer;color:var(--muted)}
 .seg input:checked+label{background:var(--accent);color:var(--accent-ink)}
@@ -513,7 +540,7 @@ td.num,th.num{text-align:right;white-space:nowrap}
 .muted{color:var(--muted)}
 .empty{padding:28px 16px;text-align:center;color:var(--muted)}
 .cart{display:flex;flex-direction:column;gap:8px}
-.ci{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px 12px;align-items:start;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.ci{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px 12px;align-items:start;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--soft)}
 .ci.deal{border-color:var(--warn);background:var(--warn-bg)}
 .ci .x{grid-column:3;grid-row:1}
 .ci > .tagc{grid-row:1;margin-top:2px}
@@ -521,7 +548,7 @@ td.num,th.num{text-align:right;white-space:nowrap}
 .ci input{width:130px;padding:8px 10px;font:700 17px var(--f-mono);text-align:right;background:var(--surface)}
 .dealnote{display:block;font-size:13px;font-weight:700;color:var(--warn)}
 .strike{text-decoration:line-through}
-.dealbox{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;padding:12px;border-radius:10px;background:var(--bg);border:1px dashed var(--line)}
+.dealbox{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;padding:12px;border-radius:10px;background:var(--soft);border:1px dashed var(--line)}
 .dealbox label.f{flex:1 1 160px}
 .profile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:10px}
 .profile .ph{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -530,13 +557,13 @@ td.num,th.num{text-align:right;white-space:nowrap}
 .ci .t{min-width:0}
 .ci .t b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .res{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow:auto}
-.ri{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.ri{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--soft);cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
 .ri:hover{border-color:var(--accent)}
 .ri .t{flex:1;min-width:0}
 .total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px dashed var(--line);padding-top:12px}
 .total .v{font:800 34px var(--f-display);font-variant-numeric:tabular-nums}
 .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
-.kv div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.kv div{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .kv span{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
 .kv b{font:800 22px var(--f-display);font-variant-numeric:tabular-nums}
 .kv .hl{background:var(--tag);border-color:var(--tag)}
@@ -553,12 +580,12 @@ td.num,th.num{text-align:right;white-space:nowrap}
 .ok-box{background:var(--ok-bg);color:var(--ok);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
 .ok-box .btns button{color:var(--ink)}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:10px;font-weight:700;max-width:calc(100% - 32px);z-index:50;box-shadow:0 6px 24px rgba(0,0,0,.25)}
-.sheet-bg{position:fixed;inset:0;background:rgba(10,20,15,.45);z-index:40;display:flex;align-items:flex-end;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.sheet-bg{position:fixed;inset:0;background:rgba(15,20,40,.45);z-index:40;display:flex;align-items:flex-end;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
 @media (min-width:700px){.sheet-bg{align-items:center;padding-bottom:16px}}
 .sheet{background:var(--surface);border-radius:16px 16px 0 0;width:min(560px,100%);max-height:88vh;overflow:auto;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
 @media (min-width:700px){.sheet{border-radius:16px}}
 .sheet-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.who{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+.who{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border-radius:10px;background:var(--soft);border:1px solid var(--line)}
 .back{background:none;border:0;color:var(--accent);font:700 15px var(--f-body);cursor:pointer;padding:6px 0;margin-bottom:8px}
 @media (prefers-reduced-motion:no-preference){.tab,button.b,.chip,.ri{transition:background .15s,border-color .15s,color .15s}}
 @media (max-width:520px){.ci{grid-template-columns:auto minmax(0,1fr) auto}.tagc.xl{font-size:26px}}
@@ -572,16 +599,16 @@ td.num,th.num{text-align:right;white-space:nowrap}
       <h1 id="shopName">Secondhand-Laden</h1>
       <div class="sub" id="shopSub">Kasse und Bestandsbuch</div>
     </div></div>
-    <div class="sync"><span class="dot" id="syncDot"></span><span id="syncTxt">Lade …</span></div>
+    <div class="hright"><div class="sync"><span class="dot" id="syncDot"></span><span id="syncTxt">Lade …</span></div><button class="hbtn" id="gearBtn" type="button" aria-label="Einstellungen" title="Einstellungen" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><button class="helpbtn" id="helpBtn" type="button" aria-label="Hilfe zu dieser Seite" title="Hilfe">?</button></div>
   </header>
   <div class="banner" id="banner" hidden></div>
   <nav class="tabs" role="tablist" id="tabs">
-    <button class="tab" role="tab" data-view="kasse">Kasse</button>
-    <button class="tab" role="tab" data-view="annahme">Annahme</button>
-    <button class="tab" role="tab" data-view="bestand">Bestand</button>
-    <button class="tab" role="tab" data-view="personen">Spender &amp; Verkäufer</button>
-    <button class="tab" role="tab" data-view="belege">Quittungen</button>
-    <button class="tab" role="tab" data-view="einstellungen">Einstellungen</button>
+    <button class="tab main" role="tab" data-view="kasse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-2 11H5L3 9z"/><path d="M8 9l4-5 4 5"/><path d="M9 13v3M15 13v3"/></svg>Kasse</button>
+    <button class="tab main" role="tab" data-view="annahme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V7.2a2.2 2.2 0 1 0-2.2-2.2"/><path d="M12 8L3.2 15.4c-.8.7-.3 1.6.6 1.6h16.4c.9 0 1.4-.9.6-1.6L12 8z"/></svg>Annahme</button>
+    <span class="tsep" aria-hidden="true"></span>
+    <button class="tab" role="tab" data-view="bestand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5l9-4.5 9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/></svg>Bestand</button>
+    <button class="tab" role="tab" data-view="personen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.4 2.7-6 6-6s6 2.6 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.4 0 4 1.8 4 4.6"/></svg>Spender &amp; Verkäufer</button>
+    <button class="tab" role="tab" data-view="belege"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>Quittungen</button>
   </nav>
   <main id="view"></main>
 </div>
@@ -635,8 +662,9 @@ function showBanner(t){const b=$("#banner");b.textContent=t;b.hidden=!t}
 function pinHash(p){const f=str=>{let x=0x811c9dc5;for(let i=0;i<str.length;i++){x^=str.charCodeAt(i);x=Math.imul(x,0x01000193)>>>0}return x.toString(16).padStart(8,"0")};return f("shk-pin:"+p)+f("x"+p+":shk")}
 const DEFAULT_PIN="e7b2d98fa4143583";
 function curPin(){return S.settings.pinHash||DEFAULT_PIN}
-function go(v){if(v!=="einstellungen")S.unlocked=false;S.view=v;for(const t of document.querySelectorAll(".tab"))t.setAttribute("aria-selected",t.dataset.view===v?"true":"false");renderView()}
+function go(v){if(v!=="einstellungen")S.unlocked=false;S.view=v;for(const t of document.querySelectorAll(".tab"))t.setAttribute("aria-selected",t.dataset.view===v?"true":"false");$("#gearBtn").setAttribute("aria-pressed",v==="einstellungen"?"true":"false");renderView()}
 $("#tabs").addEventListener("click",e=>{const t=e.target.closest(".tab");if(t)go(t.dataset.view)});
+$("#gearBtn").addEventListener("click",()=>go("einstellungen"));
 
 function renderView(){const v=$("#view");
   ({kasse:vKasse,annahme:vAnnahme,bestand:vBestand,personen:vPersonen,belege:vBelege,einstellungen:vSettings})[S.view](v)}
@@ -656,10 +684,13 @@ function vKasse(v){v.innerHTML=`
   <section class="panel">
     <h3>Warenkorb</h3>
     <div id="k-cart" class="cart"></div>
-    <p class="hint">Verhandelt? Tippe beim Teil auf das Feld <b>Zahlt</b> und gib den neuen Preis ein.</p>
-    <div class="dealbox"><label class="f" for="k-deal">Oder Gesamtpreis für alles vereinbart<input id="k-deal" inputmode="decimal" placeholder="z. B. 10,00"></label><button class="b" id="k-deal-go" type="button">Übernehmen</button><button class="b" id="k-deal-reset" type="button">Etikettpreise</button></div>
+    <button type="button" class="link" id="k-dealtog" aria-expanded="false" hidden>Preis verhandelt?</button>
+    <div id="k-dealwrap" class="stack" hidden>
+      <p class="hint">Neuen Preis direkt beim Teil im Feld <b>Zahlt</b> eintragen. Oder einen Gesamtpreis für alle Teile:</p>
+      <div class="dealbox"><label class="f" for="k-deal">Gesamtpreis für alles<input id="k-deal" inputmode="decimal" placeholder="z. B. 10,00"></label><button class="b" id="k-deal-go" type="button">Übernehmen</button><button class="b" id="k-deal-reset" type="button">Etikettpreise</button></div>
+    </div>
     <div class="total"><span class="muted">Summe<span id="k-disc" class="dealnote"></span></span><span class="v" id="k-sum">0,00 €</span></div>
-    <div class="fields"><label class="f" for="k-given">Gegeben<input id="k-given" inputmode="decimal" placeholder="0,00"></label>
+    <div class="fields"><label class="f" for="k-given">Gegeben<input id="k-given" inputmode="decimal" placeholder="0,00"><small>für das Rückgeld, freiwillig</small></label>
       <div class="f" style="justify-content:flex-end"><span>Rückgeld</span><b id="k-change" style="font:800 22px var(--f-display);color:var(--ink);text-transform:none;letter-spacing:0;padding-block:10px">0,00 €</b></div></div>
     <div class="btns"><button class="b pri" id="k-done" style="flex:1">Verkauf abschließen</button><button class="b" id="k-clear">Leeren</button></div>
     <div id="k-last"></div>
@@ -673,11 +704,12 @@ function vKasse(v){v.innerHTML=`
   $("#k-cart").addEventListener("input",e=>{const i=e.target.closest("[data-vk]");if(i){const n=parseEur(i.value);S.cart[+i.dataset.vk].vk=isNaN(n)?0:n;kSum()}});
   $("#k-cart").addEventListener("change",e=>{if(e.target.closest("[data-vk]"))kCart()});
   $("#k-cart").addEventListener("focusin",e=>{const i=e.target.closest("[data-vk]");if(i)setTimeout(()=>i.select(),0)});
+  $("#k-dealtog").addEventListener("click",()=>{S.dealOpen=!S.dealOpen;kCart();if(S.dealOpen){const i=$("#k-vk-0");if(i)i.focus()}});
   $("#k-deal-go").addEventListener("click",dealTotal);
   $("#k-deal").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();dealTotal()}});
   $("#k-deal-reset").addEventListener("click",()=>{for(const c of S.cart)c.vk=c.preis;kCart()});
   $("#k-given").addEventListener("input",kSum);
-  $("#k-clear").addEventListener("click",()=>{S.cart=[];kCart()});
+  $("#k-clear").addEventListener("click",()=>{S.cart=[];S.dealOpen=false;kCart()});
   $("#k-done").addEventListener("click",finishSale);
   kResults();kCart();kLast();setTimeout(()=>$("#k-code")&&$("#k-code").focus(),50)}
 function kResults(){const box=$("#k-res");if(!box)return;const q=($("#k-code").value||"").trim().toLowerCase();
@@ -695,7 +727,7 @@ function addToCart(nr,pos){const x=findItem(nr,pos);
   S.cart.push({code:x.code,nr:x.nr,pos:x.pos,bez:x.bez,gr:x.gr||"",preis:+x.preis||0,vk:+x.preis||0,art:x.art,name:x.name});
   S.last=null;$("#k-code").value="";kCart();kResults();kLast();$("#k-code").focus()}
 function kCart(){const box=$("#k-cart");if(!box)return;
-  box.innerHTML=S.cart.length?S.cart.map((c,i)=>{const d=Math.round((c.preis-c.vk)*100)/100;return `<div class="ci${d?" deal":""}">${tag(c.code)}<div class="t"><b>${h(c.bez)}</b><span class="muted">${h(c.gr)}${c.gr?" · ":""}Etikett <span class="${d?"strike":""}">${eur(c.preis)}</span></span>${d>0?`<span class="dealnote">Verhandelt: ${eur(d)} weniger</span>`:d<0?`<span class="dealnote">${eur(-d)} mehr als Etikett</span>`:""}</div><label class="vk" for="k-vk-${i}">Zahlt<input id="k-vk-${i}" data-vk="${i}" inputmode="decimal" value="${(c.vk).toFixed(2).replace(".",",")}"></label><button class="x" data-rm="${i}" aria-label="Entfernen">×</button></div>`}).join(""):`<div class="empty">Leer. Tippe links eine Nummer ein.</div>`;
+  box.innerHTML=S.cart.length?S.cart.map((c,i)=>{const d=Math.round((c.preis-c.vk)*100)/100;return `<div class="ci${d?" deal":""}">${tag(c.code)}<div class="t"><b>${h(c.bez)}</b><span class="muted">${h(c.gr)}${c.gr?" · ":""}Etikett <span class="${d?"strike":""}">${eur(c.preis)}</span></span>${d>0?`<span class="dealnote">Verhandelt: ${eur(d)} weniger</span>`:d<0?`<span class="dealnote">${eur(-d)} mehr als Etikett</span>`:""}</div>${S.dealOpen||d?`<label class="vk" for="k-vk-${i}">Zahlt<input id="k-vk-${i}" data-vk="${i}" inputmode="decimal" value="${(c.vk).toFixed(2).replace(".",",")}"></label>`:`<b class="price">${eur(c.vk)}</b>`}<button class="x" data-rm="${i}" aria-label="Entfernen">×</button></div>`}).join(""):`<div class="empty">Leer. Tippe links eine Nummer ein.</div>`;
   kSum()}
 function dealTotal(){const T=parseEur($("#k-deal").value);if(!S.cart.length)return;if(isNaN(T)){toast("Bitte einen Betrag eingeben, z. B. 10,00.");return}
   const base=S.cart.reduce((a,c)=>a+c.preis,0);let rest=T;
@@ -704,7 +736,9 @@ function dealTotal(){const T=parseEur($("#k-deal").value);if(!S.cart.length)retu
 function kSum(){const s=S.cart.reduce((a,c)=>a+(+c.vk||0),0);$("#k-sum").textContent=eur(s);
   const orig=S.cart.reduce((a,c)=>a+c.preis,0),dd=Math.round((orig-s)*100)/100;$("#k-disc").textContent=dd>0?` Etikett ${eur(orig)}, Nachlass ${eur(dd)}`:"";
   const g=parseEur($("#k-given").value);
-  $("#k-change").textContent=!isNaN(g)&&g>0?eur(Math.round((g-s)*100)/100):"0,00 €";$("#k-done").disabled=!S.cart.length}
+  $("#k-change").textContent=!isNaN(g)&&g>0?eur(Math.round((g-s)*100)/100):"0,00 €";$("#k-done").disabled=!S.cart.length;
+  const tg=$("#k-dealtog");tg.hidden=!S.cart.length;tg.textContent=S.dealOpen?"Verhandeln schließen":"Preis verhandelt?";tg.setAttribute("aria-expanded",S.dealOpen?"true":"false");
+  $("#k-dealwrap").hidden=!(S.dealOpen&&S.cart.length)}
 function kLast(){const box=$("#k-last");if(!box)return;const b=S.last;if(!b){box.innerHTML="";return}
   box.innerHTML=`<div class="ok-box"><b>Verkauf gebucht · Quittung ${h(b.nr)} · ${eur(b.summe)}</b><div class="btns"><button class="b sm" id="k-pdf">Quittung als PDF</button><button class="b sm" id="k-show">Quittung anzeigen</button></div></div>`;
   $("#k-pdf").onclick=()=>pdfQuittung(b);$("#k-show").onclick=()=>{S.qDetail=b.id;go("belege")}}
@@ -720,36 +754,40 @@ async function finishSale(){if(!S.cart.length)return;
     const byP={};for(const c of items){(byP[c.nr]=byP[c.nr]||{})[c.pos]={status:"verkauft",vk:c.vk,vkAm:iso,beleg:nr}}
     for(const nrP of Object.keys(byP))await write(()=>db.doc("personen/"+nrP).update({items:byP[nrP]}));
     await write(()=>db.doc("belege/"+id).set(beleg));
-    S.last={...beleg,id};S.cart=[];$("#k-given").value="";kCart();kResults();kLast();toast("Verkauf gebucht.")
+    S.last={...beleg,id};S.cart=[];S.dealOpen=false;$("#k-given").value="";kCart();kResults();kLast();toast("Verkauf gebucht.")
   }catch(e){btn.disabled=false}}
 
 /* ---------- Annahme ---------- */
 function vAnnahme(v){v.innerHTML=`
 <div class="grid2">
-  <section class="panel">
-    <div><h2>Annahme</h2><p class="hint">Jede Person bekommt eine feste Nummer. Jedes Teil bekommt dahinter eine laufende Nummer.</p></div>
+  <div class="stack" style="gap:16px">
+  <section class="panel step" id="e-step1">
+    <div><h2 class="sh"><span class="stepn">1</span>Person</h2><p class="hint">Wer bringt die Sachen? Jede Person hat eine feste Nummer.</p></div>
     <form id="e-pform" class="stack" autocomplete="off">
       <div class="fields">
-        <label class="f" for="e-nr">Personen-Nr.<input id="e-nr" inputmode="numeric" placeholder="110"></label>
-        <label class="f" for="e-name">Name<input id="e-name" placeholder="Vor- und Nachname"></label>
-        <label class="f" for="e-kontakt">Kontakt / Klasse<input id="e-kontakt" placeholder="optional"></label>
+        <label class="f" for="e-nr">Personen-Nr.<input id="e-nr" inputmode="numeric" placeholder="110"><small>steht vorne auf dem Etikett</small></label>
+        <label class="f" for="e-name">Name<input id="e-name" placeholder="Vor- und Nachname"><small>nur bei neuen Personen nötig</small></label>
+        <label class="f" for="e-kontakt">Kontakt / Klasse<input id="e-kontakt" placeholder="z. B. GA26a"><small>freiwillig</small></label>
       </div>
       <div id="e-pstatus"></div>
     </form>
-    <form id="e-iform" class="stack" autocomplete="off">
-      <h3>Teil eintragen</h3>
+  </section>
+  <form id="e-iform" class="panel step off" autocomplete="off">
+    <div><h2 class="sh"><span class="stepn">2</span>Teil eintragen</h2><p class="hint" id="e-s2hint">Erst Schritt 1 ausfüllen.</p></div>
+    <fieldset id="e-step2" class="stack" disabled>
       <div class="fields">
-        <label class="f" for="e-bez" style="grid-column:1/-1">Was wurde abgegeben?<input id="e-bez" placeholder="rote Hose"></label>
-        <label class="f" for="e-gr">Größe<input id="e-gr" placeholder="38 / M"></label>
-        <label class="f" for="e-preis">Preis<input id="e-preis" inputmode="decimal" placeholder="5,00"></label>
+        <label class="f" for="e-bez" style="grid-column:1/-1">Was wurde abgegeben?<input id="e-bez" placeholder="rote Hose"><small>kurz beschreiben</small></label>
+        <label class="f" for="e-gr">Größe<input id="e-gr" placeholder="38 / M"><small>freiwillig</small></label>
+        <label class="f" for="e-preis">Preis<input id="e-preis" inputmode="decimal" placeholder="5,00"><small>in Euro</small></label>
       </div>
       <div class="seg" role="radiogroup" aria-label="Art">
         <input type="radio" name="e-art" id="e-art-a" value="auszahlung" checked><label for="e-art-a">Geld zurück</label>
         <input type="radio" name="e-art" id="e-art-s" value="spende"><label for="e-art-s">Spende</label>
       </div>
       <button class="b pri" id="e-save">Teil speichern</button>
-    </form>
-  </section>
+    </fieldset>
+  </form>
+  </div>
   <section class="panel">
     <h3 id="e-ih">Teile dieser Person</h3>
     <div id="e-new"></div>
@@ -758,11 +796,16 @@ function vAnnahme(v){v.innerHTML=`
 </div>`;
   const nrI=$("#e-nr");nrI.value=S.eNr||"";
   nrI.addEventListener("input",()=>{S.eNr=nrI.value.replace(/\D/g,"");nrI.value=S.eNr;$("#e-new").innerHTML="";ePerson(true);eItems()});
-  $("#e-pform").addEventListener("submit",e=>{e.preventDefault();$("#e-bez").focus()});
+  $("#e-name").addEventListener("input",eStep);
+  $("#e-pform").addEventListener("submit",e=>{e.preventDefault();if(!$("#e-step2").disabled)$("#e-bez").focus()});
   $("#e-pstatus").addEventListener("click",e=>{if(e.target.id==="e-next"){S.eNr=String(nextNr());nrI.value=S.eNr;ePerson(true);eItems();$("#e-name").focus()}});
   $("#e-iform").addEventListener("submit",e=>{e.preventDefault();saveItem()});
   ePerson(true);eItems()}
-function ePerson(fill){const box=$("#e-pstatus");if(!box)return;const nr=S.eNr;const p=nr&&S.personen.get(nr);
+function eStep(){const fs=$("#e-step2");if(!fs)return;const nr=S.eNr,p=nr&&S.personen.get(nr),ok=!!(nr&&(p||$("#e-name").value.trim()));
+  fs.disabled=!ok;$("#e-iform").classList.toggle("off",!ok);
+  $("#e-s2hint").textContent=ok?(p?`Für ${p.name}, Nr. ${p.nr}.`:`Für die neue Person Nr. ${nr}.`):(nr?"Bitte zuerst den Namen eintragen.":"Erst Schritt 1 ausfüllen.")}
+function ePerson(fill){ePerson0(fill);eStep()}
+function ePerson0(fill){const box=$("#e-pstatus");if(!box)return;const nr=S.eNr;const p=nr&&S.personen.get(nr);
   const nm=$("#e-name"),kt=$("#e-kontakt");
   if(p){if(fill||!nm.dataset.known){nm.value=p.name||"";kt.value=p.kontakt||""}nm.readOnly=kt.readOnly=true;nm.dataset.known="1";
     const s=stats(p);box.innerHTML=`<div class="who">${tag("Nr. "+p.nr)}<b>${h(p.name)}</b><span class="muted">bekannt · ${s.n} Teile bisher</span></div>`;
@@ -771,7 +814,7 @@ function ePerson(fill){const box=$("#e-pstatus");if(!box)return;const nr=S.eNr;c
     box.innerHTML=nr?`<p class="hint">Neue Person. Name eintragen, sie wird mit dem ersten Teil angelegt.</p>`:`<div class="btns"><button type="button" class="b sm" id="e-next">Nächste freie Nummer${S.loadedP?": "+nextNr():""}</button></div>`}}
 function eItems(){const box=$("#e-items");if(!box)return;const p=S.eNr&&S.personen.get(S.eNr);
   if(!p){box.innerHTML=`<div class="empty">${S.eNr?"Noch keine Teile für Nr. "+h(S.eNr)+".":"Gib eine Personen-Nummer ein."}</div>`;return}
-  const it=itemsOf(p);box.innerHTML=it.length?`<div class="tablewrap"><table><thead><tr><th>Nr.</th><th>Teil</th><th>Größe</th><th class="num">Preis</th><th>Status</th></tr></thead><tbody>${it.slice().reverse().map(x=>`<tr><td>${tag(x.code)}</td><td>${h(x.bez)} ${x.art==="spende"?pill("spende","Spende"):""}</td><td>${h(x.gr)}</td><td class="num">${eur(x.preis)}</td><td>${pill(x.status,STATUS[x.status])}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Noch keine Teile.</div>`}
+  const it=itemsOf(p);box.innerHTML=it.length?`<div class="tablewrap"><table><thead><tr><th>Nr.</th><th>Teil</th><th class="num">Preis</th></tr></thead><tbody>${it.slice().reverse().map(x=>`<tr><td>${tag(x.code)}</td><td>${h(x.bez)}${x.gr?` <span class="muted">${h(x.gr)}</span>`:""}<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">${pill(x.status,STATUS[x.status])}${x.art==="spende"?pill("spende","Spende"):""}</div></td><td class="num">${eur(x.preis)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Noch keine Teile.</div>`}
 async function saveItem(){const nr=S.eNr;if(!nr){toast("Bitte zuerst eine Personen-Nummer eingeben.");$("#e-nr").focus();return}
   const bez=$("#e-bez").value.trim(),gr=$("#e-gr").value.trim(),preis=parseEur($("#e-preis").value);
   const art=document.querySelector('input[name="e-art"]:checked').value;
@@ -787,6 +830,57 @@ async function saveItem(){const nr=S.eNr;if(!nr){toast("Bitte zuerst eine Person
     $("#e-new").innerHTML=`<div class="ok-box"><span>Gespeichert. Diese Nummer aufs Etikett schreiben:</span><div>${tag(nr+"-"+pos,true)}</div><span>${h(bez)}${gr?" · "+h(gr):""} · ${eur(preis)}</span></div>`;
     $("#e-bez").value="";$("#e-gr").value="";$("#e-preis").value="";$("#e-bez").focus()
   }catch(e){}}
+
+/* ---------- Hilfe ---------- */
+const HELP={
+ kasse:["Kasse: so verkaufst du",[
+  "Tippe die Nummer vom Etikett in das große Feld, zum Beispiel 110-3. Du kannst auch nach dem Teil suchen, zum Beispiel Hose.",
+  "Das Teil landet im Warenkorb. Für mehrere Teile tippst du einfach die nächste Nummer ein.",
+  "Wurde ein Preis verhandelt, tippe auf „Preis verhandelt?“. Dann kannst du beim Teil einen neuen Preis eintragen oder einen Gesamtpreis für alles.",
+  "Trag bei „Gegeben“ ein, wie viel Geld du bekommst. Dann siehst du das Rückgeld.",
+  "Tippe auf „Verkauf abschließen“. Danach kannst du die Quittung als PDF speichern."],
+  "Falsches Teil im Warenkorb? Mit dem Kreuz nimmst du es wieder heraus."],
+ annahme:["Annahme: neue Teile eintragen",[
+  "Schritt 1: Gib die Nummer der Person ein. Ist die Person neu, tippe auf „Nächste freie Nummer“ und trag den Namen ein.",
+  "Schritt 2: Trag ein, was abgegeben wurde, die Größe und den Preis.",
+  "Wähle „Geld zurück“, wenn die Person das Geld bekommen möchte. Sonst wähle „Spende“.",
+  "Tippe auf „Teil speichern“. Die Kasse zeigt dir die Nummer für das Etikett, zum Beispiel 110-4. Schreib sie gut lesbar auf das Etikett."],
+  "Bringt die Person mehrere Teile, bleibt ihre Nummer stehen. Du trägst einfach das nächste Teil ein."],
+ bestand:["Bestand: alle Teile",[
+  "Hier siehst du alle Teile, die abgegeben wurden.",
+  "Oben kannst du suchen, zum Beispiel nach einer Nummer, einem Teil oder einem Namen.",
+  "Mit „Im Laden“, „Verkauft“ und „Zurückgegeben“ filterst du die Liste.",
+  "Tippe auf eine Zeile, um ein Teil zu ändern. Holt jemand sein Teil wieder ab, tippe dort auf „An Person zurückgegeben“."]],
+ personen:["Spender und Verkäufer",[
+  "Hier steht jede Person mit ihrer Nummer und ihren Teilen.",
+  "Tippe auf eine Person, um ihr Profil zu sehen. Dort steht, was schon verkauft ist.",
+  "„Noch auszuzahlen“ zeigt, wie viel Geld die Person noch bekommt.",
+  "Gibst du ihr das Geld, tippe auf „als ausgezahlt buchen“. Mit „Abrechnung als PDF“ bekommt sie eine Übersicht zum Unterschreiben."]],
+ belege:["Quittungen",[
+  "Jeder Verkauf erzeugt hier automatisch eine Quittung.",
+  "Oben siehst du, wie viel heute eingenommen wurde.",
+  "Tippe auf eine Quittung, um sie anzusehen oder als PDF zu speichern.",
+  "Wurde etwas falsch verkauft, tippe in der Quittung auf „Stornieren“. Die Teile kommen dann wieder in den Laden."]],
+ einstellungen:["Einstellungen",[
+  "Die Einstellungen sind mit einer PIN geschützt.",
+  "Hier änderst du den Namen des Ladens und die PIN.",
+  "Bei GitHub siehst du, ob automatisch gesichert wird. Läuft der Zugangsschlüssel ab, trägst du hier einen neuen ein.",
+  "Mit „Sicherung erstellen und teilen“ speicherst du zusätzlich eine Datei, zum Beispiel in der Nextcloud."]]
+};
+const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>';
+function speechText(t){return t.replace(/[„“"]/g,"").replace(/(\d+)-(\d+)/g,"$1 Strich $2")}
+function setSay(btn,on){if(btn)btn.innerHTML=SPK+(on?"Stopp":"Vorlesen")}
+function speak(btn,text){const ss=window.speechSynthesis;if(!ss)return;
+  if(ss.speaking||ss.pending){ss.cancel();setSay(btn,false);return}
+  const u=new SpeechSynthesisUtterance(speechText(text));u.lang="de-DE";u.rate=.95;
+  try{const vs=ss.getVoices().filter(x=>/^de/i.test(x.lang));if(vs.length)u.voice=vs.find(x=>/de-DE/i.test(x.lang))||vs[0]}catch(e){}
+  u.onend=u.onerror=()=>setSay(btn,false);ss.speak(u);setSay(btn,true)}
+function openHelp(){const hp=HELP[S.view]||HELP.kasse,[title,steps,tip]=hp;const canSay="speechSynthesis" in window;
+  openSheet(`<div class="help stack" style="gap:16px"><div class="sheet-h"><h3>${h(title)}</h3><button class="x" data-close aria-label="Schließen">×</button></div>
+    <ol>${steps.map(t=>`<li><span>${h(t)}</span></li>`).join("")}</ol>${tip?`<div class="tip"><b>Tipp:</b> ${h(tip)}</div>`:""}
+    <div class="btns">${canSay?`<button class="b" id="h-say" type="button">${SPK}Vorlesen</button>`:""}<button class="b pri" data-close type="button" style="flex:1">Alles klar</button></div></div>`);
+  const b=$("#h-say");if(b)b.onclick=()=>speak(b,[title,...steps,tip?"Tipp: "+tip:""].join(". ").replace(/\.\./g,"."))}
+$("#helpBtn").addEventListener("click",openHelp);
 
 /* ---------- Bestand ---------- */
 function vBestand(v){v.innerHTML=`
@@ -815,7 +909,7 @@ function bList(){const box=$("#b-list");if(!box)return;if(!S.loadedP){box.innerH
   </tbody></table></div>`}
 
 /* ---------- Bearbeiten (Blatt) ---------- */
-function closeSheet(){$("#sheetRoot").innerHTML=""}
+function closeSheet(){try{window.speechSynthesis&&window.speechSynthesis.cancel()}catch(e){}$("#sheetRoot").innerHTML=""}
 function openSheet(html){$("#sheetRoot").innerHTML=`<div class="sheet-bg" id="sbg"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;
   $("#sbg").addEventListener("click",e=>{if(e.target.id==="sbg"||e.target.closest("[data-close]"))closeSheet()})}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
@@ -975,7 +1069,7 @@ async function backup(){const d=new Date(),name=`Secondhand_Sicherung_${d.toISOS
   try{const file=new File([json],name,{type:"application/json"});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});done();return}}
   catch(e){if(e&&e.name==="AbortError")return}
   saveFile(name,json);done()}
-function setNotice(m){S.notice=m;const t=document.querySelector('.tab[data-view="einstellungen"]');if(t)t.classList.toggle("note",!!m);renderNotice()}
+function setNotice(m){S.notice=m;const t=$("#gearBtn");if(t)t.classList.toggle("note",!!m);renderNotice()}
 function renderNotice(){const el=$("#st-notice");if(el)el.innerHTML=S.notice?`<div class="notice">${h(S.notice)}</div>`:""}
 function checkBackup(){let m="";
   if(GH.conflict)m="Bei GitHub liegt ein anderer Stand als auf diesem Gerät. Bitte unten bei GitHub auswählen, welcher gilt.";
